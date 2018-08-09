@@ -35,17 +35,40 @@ var RecipeApp = function() {
         recipes.push(recipe);
     };
 
-    var createIngredients = function() {
-        alert('hi hi add ingredient');
+    var _findRecipIndexById = function(recID) {
+        for (i in recipes) {
+            if (recipes[i].id == recID) {
+                return i
+            }
+        }
+        return undefined;
+    }
+
+    var createIngredients = function(text, id) {
+        var ingrediente = {
+            text: text
+        };
+        let index = _findRecipIndexById(id);
+        let recipe = this.recipes[index];
+        console.log(recipe);
+        recipe.ingredients.push({ text: text });
         //add code
     };
 
     var _getIngredientsHTML = function(recipe) {
         var recipesHTML = "";
-
+        for (let ingrediente of recipe.ingredients) {
+            recipesHTML = recipesHTML + '<li>' + ingrediente.text + '</li>';
+        }
         //add code
         return recipesHTML;
     };
+
+    var deleteRecipe = function(recId) {
+        console.log(recId);
+        let index = _findRecipIndexById(recId);
+        this.recipes.splice(index, 1);
+    }
 
     var renderRecipes = function() {
         //empty recipes div
@@ -56,7 +79,7 @@ var RecipeApp = function() {
             var recipe = recipes[i];
 
             //return HTML for all ingredients
-            var ingredients = _getIngredientsHTML(); //add code
+            var ingredients = _getIngredientsHTML(recipe); //add code
 
             $recipes.append(
                 '<div class="recipe col-md-6  offset-md-3 img-fluid shadow" data-id="' + recipe.id + '">' +
@@ -67,32 +90,23 @@ var RecipeApp = function() {
                 '<div class="input-group mb-3">' +
                 '<div class="input-group-prepend">' +
                 '<span class="add-ingredients input-group-text" id="basic-addon3">Add Ingredients</span>' +
-                // '<button class="btn btn-primary add-ingredients input-group-text" type="button" id="basic-addon3">Add Ingredients</button>' +
                 '</div>' +
                 '<input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3">' +
-                '</div>' +
+                '<button class="btn btn-primary delete-recipe" type="button">Delete a Recipe</button>' + '</div>' +
                 '<ul class="ingredients">' + ingredients + '</ul>' +
                 '</div>'
             );
         }
-        // add an ingrediente
-        $('.row').children(2).children(2).children(7).children(4).closest('#basic-addon3').on('click', function() {
-            //debugger;
-            console.log($('.row').children(2).children(2));
-            console.log($('.row').children(2).children(2).children(6));
-            console.log($('.row').children(2).children(2).children(7));
-            console.log($('.row').children(2).children(2).children(8));
-            //console.log($('.row').children(2).children(2).children(7).children(4).closest("input-group mb-3").find('#basic-addon3'));
-            //alert($('.row').children(2).children(2).children(7).children(4).find('#basic-url').val());
-            //createIngredients();
 
-        });
+
     };
 
     return {
+        recipes: recipes,
         createRecipe: createRecipe,
         renderRecipes: renderRecipes,
         createIngredients: createIngredients,
+        deleteRecipe: deleteRecipe
     }
 };
 
@@ -111,4 +125,18 @@ $('.add-recipe').on('click', function() {
     app.createRecipe(name, image);
     app.renderRecipes();
 });
+
+$('.recipes').on('click', '.delete-recipe', function() {
+    let recId = $(this).closest('.recipe').attr("data-id");
+    app.deleteRecipe(recId);
+    app.renderRecipes();
+});
+
 // add an ingrediente
+$('.recipes').on('click', '.add-ingredients', function() {
+    let text = $(this).closest('.input-group').find('#basic-url').val();
+    let recId = $(this).closest('.recipe').attr("data-id");
+    app.createIngredients(text, recId)
+    app.renderRecipes();
+
+});
